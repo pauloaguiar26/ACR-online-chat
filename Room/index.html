@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Node.js Socket.io Chat Application</title>
+    <title>Grupo2-onlineChat</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="/style/style.css">
 </head>
@@ -16,16 +16,16 @@
 		<div id="app" class="row" style="margin-top: 70px;">
 			<div v-if="state==0" id="login-box">
 				<h3 id="welcome"> Welcome!</h3><br>
-				<form @submit.prevent="setUsername" id="myForm" class="form-row">
-					<input type="email" class="form-control" style="width: 200px;margin:2px;" placeholder="email@domain.com" name="email" id="email">
+				<form @submit.prevent="login" id="myForm" class="form-row">
+					<input type="email" class="form-control" style="width: 200px;margin:2px;" placeholder="email@domain.com" v-model="email">
 					<input type="password" class="form-control" style="width: 200px;margin:2px;" placeholder="Password" v-model="password">
-					<input type="text" class="form-control" style="width: 200px;margin:2px;" placeholder="Join as" v-model="username" name="username" >
+					<input type="text" class="form-control" style="width: 200px;margin:2px;" placeholder="Join as" v-model="username">
 					<input type="submit" value="Login" class="btn btn-success" style="margin-inline-start:62%">
 				</form>
 					<button @click="registUser" class="btn btn-success" style="margin-inline-end: 24%;margin-block-start:-17%">Regist Now</button>
 			</div>
 			<br>
-			<div v-if="state==1">
+			<div v-if="state==1" >
 				<div id="chatArea">
 					<ul id="chatBox">
 						<li v-for="message in messages" id="messageRow">
@@ -48,8 +48,8 @@
 			<div v-if="state==2" id="login-box">
 				<h3 id="welcome"> Register!</h3><br>
 				<form @submit.prevent="register" id="myForm" class="form-row align-items-center">
-					<input type="email" class="form-control" style="width: 200px;margin:2px;" placeholder="email@domain.com" name="email" id="email">
-					<input type="password" class="form-control" style="width: 200px;margin:2px;" placeholder="Password" name="password" id="password">		
+					<input type="email" class="form-control" style="width: 200px;margin:2px;" placeholder="email@domain.com"id="email" v-model="email"> 
+					<input type="password" class="form-control" style="width: 200px;margin:2px;" placeholder="Password" id="password" v-model="password">		
 					<input type="submit" value="Regist" class="btn btn-success" style="margin:2px;">
 				</form>
 			</div>
@@ -64,8 +64,9 @@
 			data:{
 					message: '',
 					messages: [],
-					username: '',
+					email: '',
 					password: '',
+					username: '',
 					state: 0,
 			},
 			methods:{
@@ -73,20 +74,21 @@
 					socket.emit('sending message', this.message);
 					this.message = '';
 				},
-				setUsername: function () {
-					//valida se e user
-					socket.emit('join', this.username);
+				login: function () {
+					socket.emit('login', {email: this.email, password: this.password, username: this.username});
+					//socket.emit('join', {user: this.username, email: this.email});
 					this.email = '';
 					this.username = '';
 					this.password = '';
-					this.state = 1;
 				},
-					registUser: function () {
+				registUser: function () {
+					this.email = '';
+					this.username = '';
+					this.password = '';	
 					this.state = 2;
 				},
 				register: function () {
-					//regista novo user e da join
-					socket.emit('join', this.username);
+					socket.emit('regist', {email: this.email, password: this.password});
 					this.email = '';
 					this.username = '';
 					this.password = '';
@@ -103,6 +105,9 @@
 						var messageBox = document.getElementById('chatBox');
 						messageBox.scrollTop = messageBox.scrollHeight;
 					});
+				});
+				socket.on('joining', function(){
+					app.state = 1;					
 				});
 			},
 		});

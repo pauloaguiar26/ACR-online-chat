@@ -25,6 +25,7 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
     "firebase": "^5.7.2",
+    "mongodb": "^2.2.36",
     "mongoose": "^5.4.2",
     "multer": "^1.4.1",
     "socket.io": "^2.2.0",
