@@ -29,3 +29,9 @@ li{
 	padding: 10px;
 	text-align: center;
 }
+
+#pvt-collumn {
+	border: 1px solid whitesmoke;
+	color:whitesmoke;
+	float: left;
+}

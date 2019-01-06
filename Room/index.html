@@ -32,7 +32,7 @@
 							<b>	{{message.user}} : </b> {{message.message}}
 						</li>
 					</ul>
-				</div>
+				</div>		
 				<div class="col-md-6">
 					<form @submit.prevent="sendMessage" class="form-row">
 						<div class="form-group">
@@ -67,6 +67,8 @@
 					email: '',
 					password: '',
 					username: '',
+					user:'',
+					users: [],
 					state: 0,
 			},
 			methods:{
@@ -106,7 +108,8 @@
 						messageBox.scrollTop = messageBox.scrollHeight;
 					});
 				});
-				socket.on('joining', function(){
+				socket.on('joining', function(data){
+					app.users.push(data['user']);
 					app.state = 1;					
 				});
 			},

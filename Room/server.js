@@ -72,8 +72,7 @@ io.on('connection',(socket) => {
 				console.log(result);
 				if (result > 0) {
 					console.log("Logging in");				
-					socket.emit('message', { user: 'Server', 'message': socket.username + " has joined the server!"})
-					socket.emit('joining'); //join chat
+					socket.emit('joining', { 'user': socket.username, 'email': socket.email}); //join chat
 				}	
 				else{
 					console.log("Bad data");
@@ -81,6 +80,7 @@ io.on('connection',(socket) => {
 		
 			});
 		}
+		socket.broadcast.emit('message', { user: 'Server', 'message': socket.username + " has joined the server!"});
 		
 	});
 
