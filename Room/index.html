@@ -48,8 +48,6 @@
                         {{user}}
                     </ul>
                 </div>
-                <br>
-                <button @click="SendPM" class="btn btn-success" style="margin-inline-end: 24%;margin-block-start:-17%">Regist Now</button>
 			</div>
 			<br>
 			<div v-if="state==2" id="login-box">
@@ -123,6 +121,22 @@
 			mounted: function () {
 
 				socket.on('message', function (message) {
+					app.messages.push(message);
+					app.$nextTick(function (){
+						var messageBox = document.getElementById('chatBox');
+						messageBox.scrollTop = messageBox.scrollHeight;
+					});
+                });
+                socket.on('whisper', function (message) {
+                    message.user = "private message from "+message.user;
+					app.messages.push(message);
+					app.$nextTick(function (){
+						var messageBox = document.getElementById('chatBox');
+						messageBox.scrollTop = messageBox.scrollHeight;
+					});
+                });
+                socket.on('whisper sender', function (message) {
+                    message.user = "private message to "+message.user;
 					app.messages.push(message);
 					app.$nextTick(function (){
 						var messageBox = document.getElementById('chatBox');

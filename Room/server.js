@@ -45,9 +45,32 @@ io.sockets.on('connection',(socket) => {
 
 
 	socket.on('sending message', (message) => {
-		console.log('Message is received :', message);
-		database.collection('chats').insertOne({msg: message , email: socket.email, user: socket.username}); 
-		io.sockets.emit('message', {'user': socket.username, 'message': message});
+        console.log('Message is received :', message);
+        var msg = message.trim();
+        if(msg.substr(0,3) === '/w '){
+            msg = msg.substr(3);
+            var aux = msg.indexOf(' ');
+            if(aux !== -1){
+                var name = msg.substr(0,aux);
+                msg = msg.substr(aux+1);
+                console.log(msg);
+                if(name in userlist){
+                    console.log('whispers saketas');
+                    userlist[name].emit('whisper', {'user': socket.username, 'message': msg});
+                    userlist[socket.username].emit('whisper sender', {'user': name, 'message': msg});
+                }
+                else{
+                    console.log('whispers saketas, gato n ta');
+                }
+            }
+            else{
+                console.log('whispers saketas, saketa vazia');
+            }
+        }
+        else{
+            database.collection('chats').insertOne({msg: message , email: socket.email, user: socket.username}); 
+		    io.sockets.emit('message', {'user': socket.username, 'message': message});
+        }
 	});
 
 	//Work
@@ -82,21 +105,6 @@ io.sockets.on('connection',(socket) => {
 				console.log(result);
 				if (result > 0) {
                     console.log("Logging in");
-                    // database.collection('userSocket').find({email: socket.email}).count().then( function (val){
-                    //     if(val > 0){
-                    //         console.log('update socketID');
-                    //         database.collection('userSocket').update({email: socket.email}, {$set:{socketID: socketID}});
-                    //     }
-                    //     else{
-                    //         console.log('insert SocketID');
-                    //         database.collection('userSocket').insertOne({email: socket.email, socketID: socketID});
-                    //     }
-                    // });
-                    // var sID = database.collection('userSocket').find({email: 'pale@uma.pt'}, {_id:0, email:0}).toArray();
-                    // socket.emit('getId', sID);
-                    
-                    
-
                     database.collection('users').update({email: socket.email}, {email: socket.email, password: socket.password, user: socket.username});				
                     socket.emit('joining', Object.keys(userlist)); //join chat
                     socket.broadcast.emit('updatelist', Object.keys(userlist));
