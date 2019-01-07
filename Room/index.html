@@ -36,13 +36,13 @@
 				<div class="col-md-6">
 					<form @submit.prevent="sendMessage" class="form-row">
 						<div class="form-group">
-							<textarea type = "text" placeholder="Message..." v-model="message"  class="form-control" style="width: 210%;height: auto;" v-on:keyup.enter="sendMessage"></textarea>
+							<textarea type = "text" placeholder="Message..." v-model="message" class="form-control" style="width: 210%;height: auto;" v-on:keyup.enter="sendMessage"></textarea>
 						</div>
 						<div class="form-group">
 							<input type="submit" value="Send" class="btn btn-success" style="float:left;">
 						</div>
 					</form>
-				</div>
+                </div>
 			</div>
 			<br>
 			<div v-if="state==2" id="login-box">
@@ -67,18 +67,22 @@
 					email: '',
 					password: '',
 					username: '',
-					user:'',
+					//user:'',
 					users: [],
 					state: 0,
 			},
 			methods:{
 				sendMessage: function () {
-					socket.emit('sending message', this.message);
-					this.message = '';
+                    message = this.message.replace(/^\n|\n$/g, '');
+                    this.message = '';
+                    if(message){
+                        console.log(message);
+                        socket.emit('sending message', message);
+					    this.message = '';
+                    }		
 				},
 				login: function () {
 					socket.emit('login', {email: this.email, password: this.password, username: this.username});
-					//socket.emit('join', {user: this.username, email: this.email});
 					this.email = '';
 					this.username = '';
 					this.password = '';
@@ -109,9 +113,23 @@
 					});
 				});
 				socket.on('joining', function(data){
-					app.users.push(data['user']);
+                    //console.log(data['user']);
+                    //app.users.push(data['user']);
+                    //console.log(users);
 					app.state = 1;					
-				});
+                });
+                socket.on('loadMessages',function(data){
+                    data.forEach(element => {
+                        app.messages.push({
+                            user: element.email, message: element.msg
+                        });
+                    });
+                    
+                    app.$nextTick(function (){
+						var messageBox = document.getElementById('chatBox');
+						messageBox.scrollTop = messageBox.scrollHeight;
+					});
+                });
 			},
 		});
 	</script>

@@ -73,7 +73,12 @@ io.on('connection',(socket) => {
 				if (result > 0) {
 					console.log("Logging in");				
 					socket.emit('joining', { 'user': socket.username, 'email': socket.email}); //join chat
-				}	
+                    database.collection('chats').find().sort({_id:-1}).limit(25).toArray().then(function (msgs){
+                        var msgsReverse = msgs.reverse();
+                        //console.log(msgsReverse);
+                        socket.emit('loadMessages', msgsReverse);
+                    });                           
+                }	
 				else{
 					console.log("Bad data");
 				}
