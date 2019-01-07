@@ -12,10 +12,18 @@ body{
 	color:whitesmoke;
 }
 
+#txt-area{
+    width: 210%;
+    height: auto;
+    flex:auto;
+}
+
 #chatBox{
-	height: 400px;
-	max-width: auto;
-	overflow-y: scroll;
+    height: 400px;
+    min-width: 50vw;
+	max-width: 50vw;
+    overflow-y: scroll;
+    margin-left:0;
 }
 
 li{

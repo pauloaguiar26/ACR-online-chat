@@ -66,6 +66,8 @@ io.sockets.on('connection',(socket) => {
                 }
                 else{
                     console.log('whispers saketas, gato n ta');
+                    msg = 'is not online';
+                    userlist[socket.username].emit('whisper error', {'user': name, 'message': msg});
                 }
             }
             else{
@@ -111,12 +113,11 @@ io.sockets.on('connection',(socket) => {
 				if (result > 0) {
                     console.log("Logging in");
                     database.collection('users').update({email: socket.email}, {email: socket.email, password: socket.password, user: socket.username});				
-                    socket.emit('joining', Object.keys(userlist)); //join chat
+                    socket.emit('joining', Object.keys(userlist));
                     socket.broadcast.emit('updatelist', Object.keys(userlist));
                     database.collection('chats').updateMany({email: socket.email}, {$set:{user:socket.username}});
                     database.collection('chats').find().sort({_id:-1}).limit(25).toArray().then(function (msgs){
                         var msgsReverse = msgs.reverse();
-                        //console.log(msgsReverse);
                         socket.emit('loadMessages', msgsReverse);
                     });
                                             
@@ -145,7 +146,4 @@ app.use('/style', express.static(__dirname + '/style'));
 app.use('/vue', express.static(__dirname + '/vue'));
 app.use('/views', express.static(__dirname + '/views'));
 
-// app.get('/', (req, res) => {
-// 	res.sendFile(__dirname + '/views/index.ejs');
-// });
 

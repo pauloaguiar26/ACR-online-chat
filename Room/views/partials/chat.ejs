@@ -9,7 +9,7 @@
     <div class="col-md-6">
         <form @submit.prevent="sendMessage" class="form-row">
             <div class="form-group">
-                <textarea type = "text" placeholder="Message..." v-model="message" class="form-control" style="width: 210%;height: auto;" v-on:keyup.enter="sendMessage"></textarea>
+                <textarea id="txt-area" type = "text" placeholder="Message..." v-model="message" class="form-control" v-on:keyup.enter="sendMessage"></textarea>
             </div>
             <div class="form-group">
                 <input type="submit" value="Send" class="btn btn-success" style="float:left;">

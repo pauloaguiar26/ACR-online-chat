@@ -78,6 +78,14 @@ var app = new Vue({
                 messageBox.scrollTop = messageBox.scrollHeight;
             });
         });
+        socket.on('whisper error', function (message) {
+            message.user = "The user "+message.user;
+            app.messages.push(message);
+            app.$nextTick(function (){
+                var messageBox = document.getElementById('chatBox');
+                messageBox.scrollTop = messageBox.scrollHeight;
+            });
+        });
         socket.on('joining', function(data){
             app.users = [];
             app.state = 1;
