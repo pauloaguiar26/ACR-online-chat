@@ -43,6 +43,11 @@
 						</div>
 					</form>
                 </div>
+                <div id="userbox" style="position: absolute; left: 10%; top: 30%; ">
+                    <ul v-for="user in users" style="color: whitesmoke;">
+                        {{user}}
+                    </ul>
+                </div>
                 <br>
                 <button @click="SendPM" class="btn btn-success" style="margin-inline-end: 24%;margin-block-start:-17%">Regist Now</button>
 			</div>
@@ -55,27 +60,6 @@
 					<input type="submit" value="Regist" class="btn btn-success" style="margin:2px;">
 				</form>
             </div>
-            <div v-if="state==3" >
-				<div id="chatArea">
-					<ul id="chatBox">
-						<li id="messageRow">
-							<b>	pmpage : </b> test
-						</li>
-					</ul>
-				</div>		
-				<div class="col-md-6">
-					<form @submit.prevent="sendMessage" class="form-row">
-						<div class="form-group">
-							<textarea type = "text" placeholder="Message..." v-model="message" class="form-control" style="width: 210%;height: auto;" v-on:keyup.enter="sendMessage"></textarea>
-						</div>
-						<div class="form-group">
-							<input type="submit" value="Send" class="btn btn-success" style="float:left;">
-						</div>
-					</form>
-                </div>
-                <br>
-                <button @click="SendPM" class="btn btn-success" style="margin-inline-end: 24%;margin-block-start:-17%">Regist Now</button>
-			</div>
         </div>
     </div>
 	<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
@@ -85,14 +69,14 @@
 		var app = new Vue({
 			el:'#app',
 			data:{
-					message: '',
-					messages: [],
-					email: '',
-					password: '',
-					username: '',
-					users: [],
-                    state: 0,
-                    socketID: '',
+				message: '',
+				messages: [],
+				email: '',
+				password: '',
+				username: '',
+				users: [],
+                state: 0,
+                socketID: '',
 			},
 			methods:{
 				sendMessage: function () {
@@ -137,6 +121,7 @@
 				socket = io();
 			},
 			mounted: function () {
+
 				socket.on('message', function (message) {
 					app.messages.push(message);
 					app.$nextTick(function (){
@@ -145,7 +130,21 @@
 					});
 				});
 				socket.on('joining', function(data){
-                    app.state = 1;					
+                    app.users = [];
+                    app.state = 1;
+                    for(i=0; i < data.length; i++)
+                    {
+                        app.users.push(data[i]);
+                    }
+                });
+                socket.on('updatelist', function(data){
+
+                    app.users = [];
+
+                    for(i=0; i < data.length; i++)
+                    {
+                        app.users.push(data[i]);
+                    }
                 });
                 socket.on('loadMessages',function(data){
                     data.forEach(element => {
@@ -162,6 +161,8 @@
                 socket.on('getID', function (sID) {
                     this.socketID = sID;
                 });
+                
+
                 
 			},
 		});

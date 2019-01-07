@@ -25,10 +25,11 @@ console.log('Server is running');
 const users = [];
 const connections = [];
 
+var userlist = {};
 
-io.on('connection',(socket) => {
+io.sockets.on('connection',(socket) => {
     connections.push(socket);
-    var socketID = socket.id;
+   // var socketID = socket.id;
 	users.push(socket);
 	console.log(' %s sockets connected', connections.length);
 	console.log(' %s users connected', users.length);
@@ -36,7 +37,9 @@ io.on('connection',(socket) => {
 	//Work
 	socket.on('disconnect', () => {
         socket.broadcast.emit('message', { user: 'Server', 'message': socket.username + " has left the server!"});
-		connections.splice(connections.indexOf(socket), 1);
+        delete userlist[socket.username];
+        socket.broadcast.emit('updatelist', Object.keys(userlist));
+        connections.splice(connections.indexOf(socket), 1);
 		users.splice(users.indexOf(socket), 1);
 	});
 
@@ -44,7 +47,7 @@ io.on('connection',(socket) => {
 	socket.on('sending message', (message) => {
 		console.log('Message is received :', message);
 		database.collection('chats').insertOne({msg: message , email: socket.email, user: socket.username}); 
-		io.emit('message', {'user': socket.username, 'message': message});
+		io.sockets.emit('message', {'user': socket.username, 'message': message});
 	});
 
 	//Work
@@ -63,11 +66,15 @@ io.on('connection',(socket) => {
 
 	});
 
+    
+
 	//Work
 	socket.on('login',(user) =>{
 		console.log('User tried to login :', user);
 		if (user['username'] != null) {
-			socket.username = user['username'];
+            socket.username = user['username'];
+            userlist[socket.username] = socket;
+
             socket.email = user['email'];
             socket.password = user['password'];
 			console.log(user['email']);
@@ -75,23 +82,24 @@ io.on('connection',(socket) => {
 				console.log(result);
 				if (result > 0) {
                     console.log("Logging in");
-                    database.collection('userSocket').find({email: socket.email}).count().then( function (val){
-                        if(val > 0){
-                            console.log('update socketID');
-                            database.collection('userSocket').update({email: socket.email}, {$set:{socketID: socketID}});
-                        }
-                        else{
-                            console.log('insert SocketID');
-                            database.collection('userSocket').insertOne({email: socket.email, socketID: socketID});
-                        }
-                    });
-                    var sID = database.collection('userSocket').find({email: 'pale@uma.pt'}, {_id:0, email:0}).toArray();
-                    socket.emit('getId', sID);
+                    // database.collection('userSocket').find({email: socket.email}).count().then( function (val){
+                    //     if(val > 0){
+                    //         console.log('update socketID');
+                    //         database.collection('userSocket').update({email: socket.email}, {$set:{socketID: socketID}});
+                    //     }
+                    //     else{
+                    //         console.log('insert SocketID');
+                    //         database.collection('userSocket').insertOne({email: socket.email, socketID: socketID});
+                    //     }
+                    // });
+                    // var sID = database.collection('userSocket').find({email: 'pale@uma.pt'}, {_id:0, email:0}).toArray();
+                    // socket.emit('getId', sID);
                     
                     
 
                     database.collection('users').update({email: socket.email}, {email: socket.email, password: socket.password, user: socket.username});				
-					socket.emit('joining', { 'user': socket.username, 'email': socket.email}); //join chat
+                    socket.emit('joining', Object.keys(userlist)); //join chat
+                    socket.broadcast.emit('updatelist', Object.keys(userlist));
                     database.collection('chats').updateMany({email: socket.email}, {$set:{user:socket.username}});
                     database.collection('chats').find().sort({_id:-1}).limit(25).toArray().then(function (msgs){
                         var msgsReverse = msgs.reverse();
