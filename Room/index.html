@@ -67,7 +67,6 @@
 					email: '',
 					password: '',
 					username: '',
-					//user:'',
 					users: [],
 					state: 0,
 			},
@@ -121,7 +120,7 @@
                 socket.on('loadMessages',function(data){
                     data.forEach(element => {
                         app.messages.push({
-                            user: element.email, message: element.msg
+                            user: element.user, message: element.msg
                         });
                     });
                     
@@ -130,6 +129,10 @@
 						messageBox.scrollTop = messageBox.scrollHeight;
 					});
                 });
+                socket.on('UserOn', function(data){
+                    
+                });
+
 			},
 		});
 	</script>

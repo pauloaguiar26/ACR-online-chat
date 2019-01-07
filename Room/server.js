@@ -41,7 +41,7 @@ io.on('connection',(socket) => {
 
 	socket.on('sending message', (message) => {
 		console.log('Message is received :', message);
-		database.collection('chats').insertOne({msg: message , email: socket.email}); 
+		database.collection('chats').insertOne({msg: message , email: socket.email, user: socket.username}); 
 		io.emit('message', {'user': socket.username, 'message': message});
 	});
 
@@ -66,18 +66,22 @@ io.on('connection',(socket) => {
 		console.log('User tried to login :', user);
 		if (user['username'] != null) {
 			socket.username = user['username'];
-			socket.email = user['email'];
-			console.log(user['email'])
+            socket.email = user['email'];
+            socket.password = user['password'];
+			console.log(user['email']);
 			database.collection('users').find({email: socket.email, password: user['password']}).count().then( function (result) {
 				console.log(result);
 				if (result > 0) {
-					console.log("Logging in");				
+                    console.log("Logging in");
+                    database.collection('users').update({email: socket.email}, {email: socket.email, password: socket.password, user: socket.username});				
 					socket.emit('joining', { 'user': socket.username, 'email': socket.email}); //join chat
+                    database.collection('chats').updateMany({email: socket.email}, {$set:{user:socket.username}});
                     database.collection('chats').find().sort({_id:-1}).limit(25).toArray().then(function (msgs){
                         var msgsReverse = msgs.reverse();
                         //console.log(msgsReverse);
                         socket.emit('loadMessages', msgsReverse);
-                    });                           
+                    });
+                    socket.emit('UserOn', { 'user': socket.username, 'email': socket.email}); //update user                           
                 }	
 				else{
 					console.log("Bad data");
