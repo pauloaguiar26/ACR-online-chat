@@ -1,0 +1,8 @@
+<div v-if="state==2" id="login-box">
+    <h3 id="welcome"> Register!</h3><br>
+    <form @submit.prevent="register" id="myForm" class="form-row align-items-center">
+        <input type="email" class="form-control" style="width: 200px;margin:2px;" placeholder="email@domain.com"id="email" v-model="email"> 
+        <input type="password" class="form-control" style="width: 200px;margin:2px;" placeholder="Password" id="password" v-model="password">		
+        <input type="submit" value="Regist" class="btn btn-success" style="margin:2px;">
+    </form>
+</div>

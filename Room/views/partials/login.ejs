@@ -1,0 +1,11 @@
+<div v-if="state==0" id="login-box">
+    <h3 id="welcome"> Welcome!</h3><br>
+    <form @submit.prevent="login" id="myForm" class="form-row">
+        <input type="email" class="form-control" style="width: 200px;margin:2px;" placeholder="email@domain.com" v-model="email">
+        <input type="password" class="form-control" style="width: 200px;margin:2px;" placeholder="Password" v-model="password">
+        <input type="text" class="form-control" style="width: 200px;margin:2px;" placeholder="Join as" v-model="username">
+        <input type="submit" value="Login" class="btn btn-success" style="margin-inline-start:62%">
+    </form>
+    <button @click="registUser" class="btn btn-success" style="margin-inline-end: 24%;margin-block-start:-17%">Regist Now</button>
+</div>
+<br>

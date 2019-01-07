@@ -1,0 +1,25 @@
+<div v-if="state==1" >
+    <div id="chatArea">
+        <ul id="chatBox">
+            <li v-for="message in messages" id="messageRow">
+                <b>	{{message.user}} : </b> {{message.message}}
+            </li>
+        </ul>
+    </div>		
+    <div class="col-md-6">
+        <form @submit.prevent="sendMessage" class="form-row">
+            <div class="form-group">
+                <textarea type = "text" placeholder="Message..." v-model="message" class="form-control" style="width: 210%;height: auto;" v-on:keyup.enter="sendMessage"></textarea>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Send" class="btn btn-success" style="float:left;">
+            </div>
+        </form>
+    </div>
+    <div id="userbox" style="position: absolute; left: 10%; top: 30%; ">
+        <ul v-for="user in users" style="color: whitesmoke;">
+            {{user}}
+        </ul>
+    </div>
+</div>
+<br>

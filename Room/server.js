@@ -4,12 +4,17 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
 var mongoConfigs = require('./mongoConfigs');
+var ejs  = require('ejs');
 const path = require('path');
 const bodyParser = require('body-parser');
 var database;
 
 app.use(bodyParser.urlencoded({extended:true}));
+app.set('view engine','ejs');
 
+app.get('/',function(req,res){
+    res.render('index');
+});
 
 mongoConfigs.connect(function(err){
     if(!err){
@@ -137,8 +142,10 @@ io.sockets.on('connection',(socket) => {
 
 
 app.use('/style', express.static(__dirname + '/style'));
+app.use('/vue', express.static(__dirname + '/vue'));
+app.use('/views', express.static(__dirname + '/views'));
 
-app.get('/', (req, res) => {
-	res.sendFile(__dirname + '/index.html');
-});
+// app.get('/', (req, res) => {
+// 	res.sendFile(__dirname + '/views/index.ejs');
+// });
 
