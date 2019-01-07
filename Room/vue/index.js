@@ -9,7 +9,6 @@ var app = new Vue({
         username: '',
         users: [],
         state: 0,
-        socketID: '',
     },
     methods:{
         sendMessage: function () {
@@ -39,15 +38,6 @@ var app = new Vue({
             this.username = '';
             this.password = '';
             this.state = 0;
-        },
-        SendPM: function() {
-            message = this.message.replace(/^\n|\n$/g, '');
-            this.message = '';
-            if(message){
-                socket.emit('PM', {socketID: this.socketID, msg: message });
-                this.message = '';
-                
-            }
         },
     },
     created: function () {
@@ -115,11 +105,6 @@ var app = new Vue({
                 messageBox.scrollTop = messageBox.scrollHeight;
             });
         });
-        socket.on('getID', function (sID) {
-            this.socketID = sID;
-        });
-        
-
-        
+                
     },
 });

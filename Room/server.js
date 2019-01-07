@@ -34,12 +34,10 @@ var userlist = {};
 
 io.sockets.on('connection',(socket) => {
     connections.push(socket);
-   // var socketID = socket.id;
 	users.push(socket);
 	console.log(' %s sockets connected', connections.length);
 	console.log(' %s users connected', users.length);
 
-	//Work
 	socket.on('disconnect', () => {
         socket.broadcast.emit('message', { user: 'Server', 'message': socket.username + " has left the server!"});
         delete userlist[socket.username];
@@ -47,7 +45,6 @@ io.sockets.on('connection',(socket) => {
         connections.splice(connections.indexOf(socket), 1);
 		users.splice(users.indexOf(socket), 1);
 	});
-
 
 	socket.on('sending message', (message) => {
         console.log('Message is received :', message);
@@ -80,7 +77,6 @@ io.sockets.on('connection',(socket) => {
         }
 	});
 
-	//Work
 	socket.on('regist',(data) =>{
 		console.log('User tried to regist :', data);
 		database.collection('users').find(data).count().then( function (result) {
@@ -93,18 +89,13 @@ io.sockets.on('connection',(socket) => {
 				database.collection('users').insertOne(data); 
 			}
 		});
-
-	});
-
+    });
     
-
-	//Work
 	socket.on('login',(user) =>{
 		console.log('User tried to login :', user);
 		if (user['username'] != null) {
             socket.username = user['username'];
             userlist[socket.username] = socket;
-
             socket.email = user['email'];
             socket.password = user['password'];
 			console.log(user['email']);
@@ -119,15 +110,13 @@ io.sockets.on('connection',(socket) => {
                     database.collection('chats').find().sort({_id:-1}).limit(25).toArray().then(function (msgs){
                         var msgsReverse = msgs.reverse();
                         socket.emit('loadMessages', msgsReverse);
-                    });
-                                            
+                    });                     
                 }	
 				else{
 					console.log("Bad data");
 				}
-		
 			});
-		}
+        }
 		socket.broadcast.emit('message', { user: 'Server', 'message': socket.username + " has joined the server!"});
 		
 	});
