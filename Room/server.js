@@ -28,12 +28,14 @@ const connections = [];
 
 io.on('connection',(socket) => {
     connections.push(socket);
+    var socketID = socket.id;
 	users.push(socket);
 	console.log(' %s sockets connected', connections.length);
 	console.log(' %s users connected', users.length);
 
 	//Work
 	socket.on('disconnect', () => {
+        socket.broadcast.emit('message', { user: 'Server', 'message': socket.username + " has left the server!"});
 		connections.splice(connections.indexOf(socket), 1);
 		users.splice(users.indexOf(socket), 1);
 	});
@@ -73,6 +75,21 @@ io.on('connection',(socket) => {
 				console.log(result);
 				if (result > 0) {
                     console.log("Logging in");
+                    database.collection('userSocket').find({email: socket.email}).count().then( function (val){
+                        if(val > 0){
+                            console.log('update socketID');
+                            database.collection('userSocket').update({email: socket.email}, {$set:{socketID: socketID}});
+                        }
+                        else{
+                            console.log('insert SocketID');
+                            database.collection('userSocket').insertOne({email: socket.email, socketID: socketID});
+                        }
+                    });
+                    var sID = database.collection('userSocket').find({email: 'pale@uma.pt'}, {_id:0, email:0}).toArray();
+                    socket.emit('getId', sID);
+                    
+                    
+
                     database.collection('users').update({email: socket.email}, {email: socket.email, password: socket.password, user: socket.username});				
 					socket.emit('joining', { 'user': socket.username, 'email': socket.email}); //join chat
                     database.collection('chats').updateMany({email: socket.email}, {$set:{user:socket.username}});
@@ -81,7 +98,7 @@ io.on('connection',(socket) => {
                         //console.log(msgsReverse);
                         socket.emit('loadMessages', msgsReverse);
                     });
-                    socket.emit('UserOn', { 'user': socket.username, 'email': socket.email}); //update user                           
+                                            
                 }	
 				else{
 					console.log("Bad data");
@@ -93,7 +110,11 @@ io.on('connection',(socket) => {
 		
 	});
 
-
+    socket.on('PM', (data) =>{
+		console.log('Message is received :', data['msg']);
+		database.collection('chats').insertOne({msg: data['msg'] , email: socket.email, user: socket.username}); 
+		io.emit('message', {'user': socket.username, 'message': data['msg']});
+    });
 	
 });
 

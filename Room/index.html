@@ -43,6 +43,8 @@
 						</div>
 					</form>
                 </div>
+                <br>
+                <button @click="SendPM" class="btn btn-success" style="margin-inline-end: 24%;margin-block-start:-17%">Regist Now</button>
 			</div>
 			<br>
 			<div v-if="state==2" id="login-box">
@@ -52,6 +54,27 @@
 					<input type="password" class="form-control" style="width: 200px;margin:2px;" placeholder="Password" id="password" v-model="password">		
 					<input type="submit" value="Regist" class="btn btn-success" style="margin:2px;">
 				</form>
+            </div>
+            <div v-if="state==3" >
+				<div id="chatArea">
+					<ul id="chatBox">
+						<li id="messageRow">
+							<b>	pmpage : </b> test
+						</li>
+					</ul>
+				</div>		
+				<div class="col-md-6">
+					<form @submit.prevent="sendMessage" class="form-row">
+						<div class="form-group">
+							<textarea type = "text" placeholder="Message..." v-model="message" class="form-control" style="width: 210%;height: auto;" v-on:keyup.enter="sendMessage"></textarea>
+						</div>
+						<div class="form-group">
+							<input type="submit" value="Send" class="btn btn-success" style="float:left;">
+						</div>
+					</form>
+                </div>
+                <br>
+                <button @click="SendPM" class="btn btn-success" style="margin-inline-end: 24%;margin-block-start:-17%">Regist Now</button>
 			</div>
         </div>
     </div>
@@ -68,7 +91,8 @@
 					password: '',
 					username: '',
 					users: [],
-					state: 0,
+                    state: 0,
+                    socketID: '',
 			},
 			methods:{
 				sendMessage: function () {
@@ -98,7 +122,16 @@
 					this.username = '';
 					this.password = '';
 					this.state = 0;
-				}
+                },
+                SendPM: function() {
+                    message = this.message.replace(/^\n|\n$/g, '');
+                    this.message = '';
+                    if(message){
+                        socket.emit('PM', {socketID: this.socketID, msg: message });
+                        this.message = '';
+                        
+                    }
+                },
 			},
 			created: function () {
 				socket = io();
@@ -112,10 +145,7 @@
 					});
 				});
 				socket.on('joining', function(data){
-                    //console.log(data['user']);
-                    //app.users.push(data['user']);
-                    //console.log(users);
-					app.state = 1;					
+                    app.state = 1;					
                 });
                 socket.on('loadMessages',function(data){
                     data.forEach(element => {
@@ -129,10 +159,10 @@
 						messageBox.scrollTop = messageBox.scrollHeight;
 					});
                 });
-                socket.on('UserOn', function(data){
-                    
+                socket.on('getID', function (sID) {
+                    this.socketID = sID;
                 });
-
+                
 			},
 		});
 	</script>
